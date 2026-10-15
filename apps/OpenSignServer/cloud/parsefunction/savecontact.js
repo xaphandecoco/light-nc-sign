@@ -47,7 +47,7 @@ export default async function savecontact(request) {
         if (phone) {
           _user.set('phone', phone);
         }
-        const user = await _user.save();
+        const user = await _user.save(null, { useMasterKey: true });
         if (user) {
           contactQuery.set('CreatedBy', currentUserPtr);
           contactQuery.set('UserId', user);

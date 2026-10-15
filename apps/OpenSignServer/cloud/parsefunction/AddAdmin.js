@@ -91,12 +91,16 @@ async function saveUser(userDetails) {
     }
     user.set('name', userDetails.name);
 
-    const res = await user.signUp();
-    // console.log("res ", res);
-    return { id: res.id, sessionToken: res.getSessionToken() };
+    // Master key only: nobody can sign themselves up (see UserBeforeSave).
+    const res = await user.save(null, { useMasterKey: true });
+    return { id: res.id };
   }
 }
+// Creates the owner account. Master key only: deploy calls it once, before the public address opens.
 export default async function AddAdmin(request) {
+  if (!request.master) {
+    throw new Parse.Error(Parse.Error.OPERATION_FORBIDDEN, 'Sign-up is turned off.');
+  }
   const userDetails = request.params.userDetails;
   const user = await saveUser(userDetails);
 

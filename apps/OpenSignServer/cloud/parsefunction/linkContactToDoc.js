@@ -226,7 +226,7 @@ export default async function linkContactToDoc(req) {
                 if (phone) {
                   _user.set('phone', phone);
                 }
-                const newUserRes = await _user.save();
+                const newUserRes = await _user.save(null, { useMasterKey: true });
                 const contact = {
                   UserId: { __type: 'Pointer', className: '_User', objectId: newUserRes.id },
                   Name: name,

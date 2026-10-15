@@ -52,7 +52,7 @@ export default async function editContact(request) {
           _user.set('phone', phone);
         }
 
-        const user = await _user.save();
+        const user = await _user.save(null, { useMasterKey: true });
         if (user) {
           contactQuery.set('CreatedBy', createdBy);
           contactQuery.set('UserId', user);

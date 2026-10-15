@@ -102,7 +102,7 @@ export default async function addUser(request) {
           _user.set('phone', phone);
         }
 
-        const user = await _user.save();
+        const user = await _user.save(null, { useMasterKey: true });
         if (user) {
           extUser.set('CreatedBy', currentUser);
 

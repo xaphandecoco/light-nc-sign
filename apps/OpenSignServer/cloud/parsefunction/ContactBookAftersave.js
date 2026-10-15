@@ -34,7 +34,7 @@ async function ContactbookAftersave(request) {
         if (Email) {
           _user.set('phone', Phone);
         }
-        const user = await _user.save();
+        const user = await _user.save(null, { useMasterKey: true });
         if (user) {
           object.set('UserId', user);
           const acl = object.getACL() || new Parse.ACL();
