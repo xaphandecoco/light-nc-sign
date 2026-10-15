@@ -1,62 +1,47 @@
+# Reference compose file for Light NC Sign (builds from this repository).
+# The Light NC production bundle lives in the LNC-IS repository (deploy/sign).
+name: lnc-sign
 services:
-  server:
-    image: opensign/opensignserver:main
-    container_name: OpenSignServer-container
+  mongo:
+    image: mongo:7.0.45
+    command: ["--wiredTigerCacheSizeGB", "0.25"]
     volumes:
-      - opensign-files:/usr/src/app/files
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mongo
+      - mongo-data:/data/db
+    restart: unless-stopped
+  server:
+    build:
+      context: .
+      dockerfile: apps/OpenSignServer/Dockerhubfile
     env_file: .env.prod
     environment:
       - NODE_ENV=production
-      - SERVER_URL=${HOST_URL:-https://localhost:3001}/api/app
-      - PUBLIC_URL=${HOST_URL:-https://localhost:3001}
-    networks:
-      - app-network
-  mongo:
-    image: mongo:latest
-    container_name: mongo-container
+      - APP_ID=lnc-sign
+      - PORT=8080
+      - USE_LOCAL=true
+      - MONGODB_URI=mongodb://mongo:27017/lncsign
     volumes:
-      - data-volume:/data/db
-    ports:
-      - "27018:27017"
-    networks:
-      - app-network
+      - sign-files:/usr/src/app/files
+    depends_on:
+      - mongo
+    restart: unless-stopped
   client:
-    image: opensign/opensign:main
-    container_name: OpenSign-container
+    build:
+      context: .
+      dockerfile: apps/OpenSign/Dockerhubfile
+    env_file: .env.prod
     depends_on:
       - server
-    env_file: .env.prod  
+    restart: unless-stopped
+  proxy:
+    image: caddy:2.10.2-alpine
     ports:
-      - "3000:3000"
-    networks:
-      - app-network
-  caddy:
-    image: caddy:latest
-    container_name: caddy-container
-    ports:
-      - "3001:3001"
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - "8390:8390"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - app-network
-    environment:
-      - HOST_URL=${HOST_URL:-localhost:3001}
-networks:
-  app-network:
-    driver: bridge
-
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - client
+      - server
+    restart: unless-stopped
 volumes:
-  data-volume:
-  web-root:
-  caddy_data:
-  caddy_config:
-  opensign-files:
+  mongo-data:
+  sign-files:

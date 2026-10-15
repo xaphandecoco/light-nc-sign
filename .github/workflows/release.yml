@@ -1,0 +1,70 @@
+# Light NC Sign release: on a tag "lnc-*", test, build the two images (linux/amd64), save each as a
+# .tar.gz, write SHA256SUMS and attach everything to the GitHub release. Nothing is pushed to any
+# image registry; the images are loaded on the server with `docker load`.
+name: release
+
+on:
+  push:
+    tags:
+      - "lnc-*"
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    services:
+      mongo:
+        image: mongo:7.0.45
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: "22.23.0"
+          cache: npm
+          cache-dependency-path: apps/OpenSignServer/package-lock.json
+      - name: Install server dependencies
+        working-directory: apps/OpenSignServer
+        run: npm ci
+      - name: Server tests (sign-up is closed)
+        working-directory: apps/OpenSignServer
+        env:
+          TESTING: "true"
+          SERVER_URL: "http://localhost:30001/test"
+          MASTER_KEY: "test"
+          USE_LOCAL: "true"
+        run: npx jasmine
+
+  release:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Build front end image (also audits the built pages)
+        run: |
+          docker build --platform linux/amd64 \
+            --build-arg LNC_SIGN_TAG="${GITHUB_REF_NAME}" \
+            -f apps/OpenSign/Dockerhubfile \
+            -t "light-nc-sign-web:${GITHUB_REF_NAME}" .
+      - name: Build server image
+        run: |
+          docker build --platform linux/amd64 \
+            -f apps/OpenSignServer/Dockerhubfile \
+            -t "light-nc-sign-server:${GITHUB_REF_NAME}" .
+      - name: Save images and write checksums
+        run: |
+          mkdir dist
+          docker save "light-nc-sign-web:${GITHUB_REF_NAME}" | gzip > "dist/light-nc-sign-web-${GITHUB_REF_NAME}.tar.gz"
+          docker save "light-nc-sign-server:${GITHUB_REF_NAME}" | gzip > "dist/light-nc-sign-server-${GITHUB_REF_NAME}.tar.gz"
+          cd dist && sha256sum *.tar.gz > SHA256SUMS && cat SHA256SUMS
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "Light NC Sign ${GITHUB_REF_NAME}" \
+            --notes "Light NC Sign is based on OpenSign, licensed AGPL-3.0. Source code: https://github.com/${GITHUB_REPOSITORY}/tree/${GITHUB_REF_NAME}. Load an image with: gunzip -c <file>.tar.gz | docker load. Check files with: sha256sum -c SHA256SUMS."

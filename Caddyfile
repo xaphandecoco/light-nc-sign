@@ -1,7 +1,14 @@
-{$HOST_URL} {
-    reverse_proxy client:3000
+# Reference proxy for Light NC Sign: plain HTTP on :8390 (TLS is done in front of it).
+:8390 {
+    header {
+        Content-Security-Policy "frame-ancestors https://cloud.lightnc.org"
+        -X-Frame-Options
+        Referrer-Policy strict-origin-when-cross-origin
+    }
     handle_path /api/* {
         reverse_proxy server:8080
-            rewrite * {uri}
+    }
+    handle {
+        reverse_proxy client:3000
     }
 }
