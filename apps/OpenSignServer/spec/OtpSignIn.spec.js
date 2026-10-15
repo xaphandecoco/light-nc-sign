@@ -14,14 +14,21 @@ const makeUser = async (email, password) => {
   u.set('password', password);
   return u.save(null, { useMasterKey: true });
 };
+// a signer/contact: random password nobody knows plus a contact-book row
+const makeContact = async email => {
+  const user = await makeUser(email, 'x'.repeat(40));
+  await new Parse.Object('contracts_Contactbook').save({ Email: email, UserId: user }, { useMasterKey: true });
+  return user;
+};
 const otpRows = email => new Parse.Query('defaultdata_Otp').equalTo('Email', email).find({ useMasterKey: true });
 
 describe('emailed sign-in code', () => {
   beforeAll(async () => {
-    await makeUser('contact@example.org', 'contact@example.org'); // contact: email is the password
-    await makeUser('staff2@example.org', 'Staff-pass-456'); // real password
-    await makeUser('boss@example.org', 'boss@example.org');
-    await new Parse.Object('contracts_Users').save({ Email: 'boss@example.org', UserRole: 'contracts_Admin' }, { useMasterKey: true });
+    await makeContact('contact@example.org');
+    const staff = await makeUser('staff2@example.org', 'Staff-pass-456'); // real password
+    await new Parse.Object('contracts_Users').save({ Email: 'staff2@example.org', UserId: staff }, { useMasterKey: true });
+    const boss = await makeUser('boss@example.org', 'Boss-pass-456');
+    await new Parse.Object('contracts_Users').save({ Email: 'boss@example.org', UserId: boss, UserRole: 'contracts_Admin' }, { useMasterKey: true });
   });
 
   it('makes a 6-digit code that is stored hashed and expires in 10 minutes', async () => {
@@ -43,25 +50,41 @@ describe('emailed sign-in code', () => {
     expect(again.result).toBe('Invalid Otp');
   });
 
-  it('invalidates the code after 5 wrong tries, even for the right code', async () => {
-    const code = await saveOtp('contact@example.org');
+  it('locks the address after 3 wrong codes in a row, even for the right code', async () => {
+    await makeContact('locky@example.org');
+    const code = await saveOtp('locky@example.org');
     const wrong = code === '000000' ? '111111' : '000000';
-    for (let i = 0; i < 5; i++) {
-      expect((await call('AuthLoginAsMail', { email: 'contact@example.org', otp: wrong })).result).toBe('Invalid Otp');
+    for (let i = 0; i < 3; i++) {
+      expect((await call('AuthLoginAsMail', { email: 'locky@example.org', otp: wrong })).result).toBe('Invalid Otp');
     }
-    expect((await call('AuthLoginAsMail', { email: 'contact@example.org', otp: code })).result).toBe('Invalid Otp');
-    expect(await otpRows('contact@example.org')).toEqual([]);
+    expect((await call('AuthLoginAsMail', { email: 'locky@example.org', otp: code })).result).toBe('Invalid Otp');
+    expect(await otpRows('locky@example.org')).toEqual([]);
+    // no new code either while locked
+    const send = await call('SendOTPMailV1', { email: 'locky@example.org' });
+    expect(send.error).toMatch(/Too many/);
+  });
+
+  it('a right code in between clears the failure count', async () => {
+    await makeContact('mixed@example.org');
+    for (let round = 0; round < 2; round++) {
+      const code = await saveOtp('mixed@example.org');
+      const wrong = code === '000000' ? '111111' : '000000';
+      await call('AuthLoginAsMail', { email: 'mixed@example.org', otp: wrong });
+      await call('AuthLoginAsMail', { email: 'mixed@example.org', otp: wrong });
+      expect((await call('AuthLoginAsMail', { email: 'mixed@example.org', otp: code })).result.sessionToken).toBeDefined();
+    }
   });
 
   it('refuses an expired code', async () => {
-    const code = await saveOtp('contact@example.org');
-    const [row] = await otpRows('contact@example.org');
+    await makeContact('old@example.org');
+    const code = await saveOtp('old@example.org');
+    const [row] = await otpRows('old@example.org');
     row.set('ExpiresAt', new Date(Date.now() - 1000));
     await row.save(null, { useMasterKey: true });
-    expect((await call('AuthLoginAsMail', { email: 'contact@example.org', otp: code })).result).toBe('Invalid Otp');
+    expect((await call('AuthLoginAsMail', { email: 'old@example.org', otp: code })).result).toBe('Invalid Otp');
   });
 
-  it('refuses an admin and a user who has a real password, even with a correct code', async () => {
+  it('refuses an admin and staff with a real password, even with a correct code', async () => {
     for (const email of ['boss@example.org', 'staff2@example.org']) {
       const code = await saveOtp(email);
       const res = await call('AuthLoginAsMail', { email, otp: code });

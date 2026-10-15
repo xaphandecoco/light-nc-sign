@@ -1,13 +1,19 @@
 import crypto from 'node:crypto';
 
-// One-time sign-in codes: 6 digits, 10 minutes, 5 wrong tries, deleted on success.
+// One-time sign-in codes: 6 digits, 10 minutes, deleted on success. 3 wrong codes in a row lock the
+// address for an hour (the lock also kills the live code); a success clears the count.
 const TTL_MS = 10 * 60 * 1000;
 const MAX_TRIES = 5;
+const MAX_FAILS = 3;
+const LOCK_MS = 60 * 60 * 1000;
 const CLASS = 'defaultdata_Otp';
 
 export const normalizeEmail = e =>
   typeof e === 'string' && e.length <= 254 ? e.trim().toLowerCase() : '';
 export const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+// Contacts never get a password anyone knows: accounts are made with one of these, and sign-in by
+// emailed code swaps in a fresh one just to open the session.
+export const randomPassword = () => crypto.randomBytes(32).toString('hex');
 
 const hash = (email, code) =>
   crypto
@@ -31,10 +37,25 @@ export function allow(key, max, windowMs) {
 setInterval(
   () => {
     const now = Date.now();
-    for (const [k, v] of hits) if (v.every(t => now - t > 60 * 60 * 1000)) hits.delete(k);
+    // the longest window used anywhere is one day
+    for (const [k, v] of hits) if (v.every(t => now - t > 24 * 60 * 60 * 1000)) hits.delete(k);
   },
   10 * 60 * 1000
 ).unref();
+
+const fails = new Map();
+export const isLocked = email => (fails.get(email)?.until || 0) > Date.now();
+// Returns true when this failure tripped the lock.
+function recordFail(email) {
+  const f = fails.get(email) || { n: 0, until: 0 };
+  f.n += 1;
+  if (f.n >= MAX_FAILS) {
+    f.n = 0;
+    f.until = Date.now() + LOCK_MS;
+  }
+  fails.set(email, f);
+  return f.until > Date.now();
+}
 
 export async function saveOtp(email, tenantId) {
   const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
@@ -51,6 +72,7 @@ export async function saveOtp(email, tenantId) {
 
 // Returns true once for a correct, unexpired code; the code is deleted on success.
 export async function checkOtp(email, code) {
+  if (isLocked(email)) return false;
   const row = await new Parse.Query(CLASS).equalTo('Email', email).first({ useMasterKey: true });
   if (!row) return false;
   const expires = row.get('ExpiresAt');
@@ -67,9 +89,10 @@ export async function checkOtp(email, code) {
   const given = Buffer.from(hash(email, String(code ?? '').trim()));
   const want = Buffer.from(String(row.get('OTP')));
   if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) {
-    if (row.get('Attempts') >= MAX_TRIES) await row.destroy({ useMasterKey: true });
+    if (recordFail(email) || row.get('Attempts') >= MAX_TRIES) await row.destroy({ useMasterKey: true });
     return false;
   }
+  fails.delete(email);
   await row.destroy({ useMasterKey: true });
   return true;
 }

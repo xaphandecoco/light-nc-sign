@@ -1,6 +1,8 @@
-import { allow, checkOtp, normalizeEmail } from './otpStore.js';
+import { allow, checkOtp, normalizeEmail, randomPassword } from './otpStore.js';
 
 // Emailed-code sign-in is for signers/contacts only. Staff and admins use their password.
+// Nobody knows a contact's password: once the code checks out we set a fresh random one, log in
+// with it to open the session, and throw it away.
 async function AuthLoginAsMail(request) {
   try {
     const email = normalizeEmail(request.params.email);
@@ -10,15 +12,21 @@ async function AuthLoginAsMail(request) {
 
     const user = await new Parse.Query(Parse.User).equalTo('email', email).first({ useMasterKey: true });
     if (!user) return 'user not found!';
-    const admin = await new Parse.Query('contracts_Users')
-      .equalTo('Email', email)
-      .equalTo('UserRole', 'contracts_Admin')
-      .first({ useMasterKey: true });
-    if (admin) return 'user not found!';
-    // Contacts are created with their email as password; anyone with a real password signs in with it.
+    // Anyone with a staff/admin row has a real password and must use it; only plain contacts may continue.
+    const staff = Parse.Query.or(
+      new Parse.Query('contracts_Users').equalTo('UserId', user),
+      new Parse.Query('contracts_Users').equalTo('Email', email)
+    );
+    if (await staff.first({ useMasterKey: true })) return 'user not found!';
+    const contact = await new Parse.Query('contracts_Contactbook').equalTo('UserId', user).first({ useMasterKey: true });
+    if (!contact) return 'user not found!';
+
+    const password = randomPassword();
+    user.set('password', password);
+    await user.save(null, { useMasterKey: true });
     let session;
     try {
-      session = await Parse.User.logIn(user.get('username'), email);
+      session = await Parse.User.logIn(user.get('username'), password);
     } catch (e) {
       return 'user not found!';
     }

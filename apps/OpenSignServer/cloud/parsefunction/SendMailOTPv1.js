@@ -1,5 +1,5 @@
 import { appName, smtpenable, updateMailCount } from '../../Utils.js';
-import { allow, isEmail, normalizeEmail, saveOtp } from './otpStore.js';
+import { allow, isEmail, isLocked, normalizeEmail, saveOtp } from './otpStore.js';
 async function getDocument(docId) {
   try {
     const query = new Parse.Query('contracts_Document');
@@ -16,8 +16,13 @@ async function sendMailOTPv1(request) {
   const email = normalizeEmail(request.params.email);
   if (!isEmail(email)) return 'Please Enter valid email';
   const ip = request.headers?.['x-real-ip'] || request.ip || 'unknown';
-  // 3 codes per email per 10 minutes, 20 per address per hour: stops inbox flooding.
-  if (!allow(`otp-email:${email}`, 3, 10 * 60 * 1000) || !allow(`otp-ip:${ip}`, 20, 60 * 60 * 1000)) {
+  // 3 codes per email per 10 minutes, 10 per email per day, 20 per address per hour: stops inbox flooding.
+  if (
+    isLocked(email) ||
+    !allow(`otp-email:${email}`, 3, 10 * 60 * 1000) ||
+    !allow(`otp-day:${email}`, 10, 24 * 60 * 60 * 1000) ||
+    !allow(`otp-ip:${ip}`, 20, 60 * 60 * 1000)
+  ) {
     throw new Parse.Error(Parse.Error.CONNECTION_FAILED, 'Too many requests. Try again later.');
   }
   try {

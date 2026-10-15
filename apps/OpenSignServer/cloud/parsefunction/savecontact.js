@@ -1,3 +1,4 @@
+import { randomPassword } from './otpStore.js';
 export default async function savecontact(request) {
   const name = request.params.name;
   const phone = request.params.phone;
@@ -43,7 +44,7 @@ export default async function savecontact(request) {
         _user.set('name', name);
         _user.set('username', email);
         _user.set('email', email);
-        _user.set('password', email);
+        _user.set('password', randomPassword());
         if (phone) {
           _user.set('phone', phone);
         }

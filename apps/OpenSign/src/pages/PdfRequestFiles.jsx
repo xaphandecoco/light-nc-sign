@@ -24,7 +24,6 @@ import {
   pdfNewWidthFun,
   signPdfFun,
   addDefaultSignatureImg,
-  replaceMailVaribles,
   convertPdfArrayBuffer,
   contractUsers,
   contactBook,
@@ -44,7 +43,6 @@ import {
   defaultWidthHeight,
   addWidgetOptions,
   textWidget,
-  mailTemplate,
   updateDateWidgetsRes,
   widgetDataValue,
   getOriginalWH,
@@ -819,112 +817,22 @@ function PdfRequestFiles(
                     sendmail !== "false" &&
                     sendInOrder
                   ) {
-                    const mailBody =
-                          tenantMailTemplate?.body;
-                    const mailSubject =
-                          tenantMailTemplate?.subject;
-                    const requestBody =
-                      updatedDoc.updatedPdfDetails?.[0]?.RequestBody ||
-                      mailBody;
-                    const requestSubject =
-                      updatedDoc.updatedPdfDetails?.[0]?.RequestSubject ||
-                      mailSubject;
+                    // The server works out who to notify and what to send; only the document id goes up.
                     if (user) {
-                      const expireDate = expiry;
-                      const newDate = new Date(expireDate);
-                      const localExpireDate = newDate.toLocaleDateString(
-                        "en-US",
-                        { day: "numeric", month: "long", year: "numeric" }
-                      );
-                      let senderEmail =
-                        pdfDetails?.[0]?.SenderMail ||
-                        pdfDetails?.[0]?.ExtUserPtr?.Email;
-                      let senderPhone = pdfDetails?.[0]?.ExtUserPtr?.Phone;
-                      const senderName =
-                        pdfDetails?.[0]?.SenderName ||
-                        pdfDetails?.[0].ExtUserPtr.Name;
-                      const documentName = pdfDetails?.[0].Name;
                       try {
-                        let url = `${localStorage.getItem("baseUrl")}functions/sendmailv3`;
-                        const headers = {
-                          "Content-Type": "application/json",
-                          "X-Parse-Application-Id":
-                            localStorage.getItem("parseAppId"),
-                          sessionToken: localStorage.getItem("accesstoken")
-                        };
-                        const objectId = user?.objectId;
-                        const hostUrl = window.location.origin;
-                        //encode this url value `${pdfDetails?.[0].objectId}/${user.Email}/${objectId}` to base64 using `btoa` function
-                        let encodeBase64;
-                        if (objectId) {
-                          encodeBase64 = btoa(
-                            `${docId}/${user.Email}/${objectId}`
-                          );
-                        } else {
-                          encodeBase64 = btoa(`${docId}/${user.Email}`);
-                        }
-                        let signPdf =
-                              `${hostUrl}/login/${encodeBase64}`;
-                        const orgName = pdfDetails[0]?.ExtUserPtr.Company
-                          ? pdfDetails[0].ExtUserPtr.Company
-                          : "";
-                        let replaceVar;
-                        if (
-                          requestBody &&
-                          requestSubject
-                        ) {
-                          const replacedRequestBody = requestBody.replace(
-                            /"/g,
-                            "'"
-                          );
-                          const htmlReqBody =
-                            "<html><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8' /></head><body>" +
-                            replacedRequestBody +
-                            "</body></html>";
-
-                          const variables = {
-                            document_title: documentName,
-                            note: pdfDetails?.[0]?.Note,
-                            sender_name: senderName,
-                            sender_mail: senderEmail,
-                            sender_phone: senderPhone,
-                            receiver_name: user?.Name || "",
-                            receiver_email: user.Email,
-                            receiver_phone: user?.Phone || "",
-                            expiry_date: localExpireDate,
-                            company_name: orgName,
-                            signing_url: signPdf
-                          };
-                          replaceVar = replaceMailVaribles(
-                            requestSubject,
-                            htmlReqBody,
-                            variables
-                          );
-                        }
-                        const mailparam = {
-                          note: pdfDetails?.[0]?.Note || "",
-                          senderName: senderName,
-                          senderMail: senderEmail,
-                          title: documentName,
-                          organization: orgName,
-                          localExpireDate: localExpireDate,
-                          signingUrl: signPdf
-                        };
-                        let params = {
-                          replyto: senderEmail || "",
-                          extUserId: extUserId,
-                          recipient: user.Email,
-                          subject: replaceVar?.subject
-                            ? replaceVar?.subject
-                            : mailTemplate(mailparam).subject,
-                          from:
-                            pdfDetails?.[0]?.SenderName ||
-                            senderEmail,
-                          html: replaceVar?.body
-                            ? replaceVar?.body
-                            : mailTemplate(mailparam).body
-                        };
-                        await axios.post(url, params, { headers: headers });
+                        await axios.post(
+                          `${localStorage.getItem("baseUrl")}functions/sendmailv3`,
+                          { docId },
+                          {
+                            headers: {
+                              "Content-Type": "application/json",
+                              "X-Parse-Application-Id":
+                                localStorage.getItem("parseAppId"),
+                              "X-Parse-Session-Token":
+                                localStorage.getItem("accesstoken")
+                            }
+                          }
+                        );
                       } catch (error) {
                         console.log("error", error);
                       }

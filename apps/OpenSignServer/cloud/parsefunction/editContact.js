@@ -1,3 +1,4 @@
+import { randomPassword } from './otpStore.js';
 export default async function editContact(request) {
   const { contactId, name, email, phone, tenantId } = request.params;
   const company = request.params?.company;
@@ -47,7 +48,7 @@ export default async function editContact(request) {
         _user.set('name', name);
         _user.set('username', email?.toLowerCase()?.replace(/\s/g, ''));
         _user.set('email', email?.toLowerCase()?.replace(/\s/g, ''));
-        _user.set('password', email?.toLowerCase()?.replace(/\s/g, ''));
+        _user.set('password', randomPassword());
         if (phone) {
           _user.set('phone', phone);
         }

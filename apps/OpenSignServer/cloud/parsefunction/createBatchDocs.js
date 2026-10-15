@@ -4,6 +4,7 @@ import { setDocumentCount } from '../../utils/CountUtils.js';
 
 import crypto from 'crypto';
 import sendSystemMail from './sendSystemMail.js';
+import { sendMailProvider } from './sendMailv3.js';
 
 function chunkArray(arr, size) {
   const out = [];
@@ -129,11 +130,6 @@ async function sendMail(document, publicUrl) {
 
   for (let i = 0; i < signerMail.length; i++) {
     try {
-      let url = `${serverUrl}/functions/sendmailv3`;
-      const headers = {
-        'Content-Type': 'application/json',
-        'X-Parse-Application-Id': appId,
-      };
       const objectId = signerMail[i]?.signerObjId;
       const hostUrl = baseUrl.origin;
       let encodeBase64;
@@ -188,7 +184,7 @@ async function sendMail(document, publicUrl) {
         replyto: senderEmail || '',
         html: replaceVar?.body ? replaceVar?.body : mailTemplate(mailparam).body,
       };
-      await axios.post(url, params, { headers: headers });
+      await sendMailProvider({ params });
     } catch (error) {
       console.log('batchdoc sendmail error: ', error);
     }

@@ -111,7 +111,7 @@ export const config = {
   maxLimit: 500,
   maxUploadSize: '100mb',
   masterKey: process.env.MASTER_KEY, //Add your master key here. Keep it secret!
-  masterKeyIps: ['127.0.0.1', '::1', '::ffff:127.0.0.1', '172.16.0.0/12'], // loopback + docker compose subnet
+  masterKeyIps: ['127.0.0.1', '::1', '::ffff:127.0.0.1'], // loopback only: admin work is done inside the server container
   serverURL: cloudServerUrl, // Don't forget to change to https if needed
   verifyUserEmails: false,
   publicServerURL: process.env.SERVER_URL || cloudServerUrl,
@@ -175,17 +175,15 @@ app.use(function (req, res, next) {
   req.headers['public_url'] = publicUrl;
   next();
 });
-function getUserIP(request) {
-  let forwardedFor = request.headers['x-forwarded-for'];
-  if (forwardedFor) {
-    if (forwardedFor.indexOf(',') > -1) {
-      return forwardedFor.split(',')[0];
-    } else {
-      return forwardedFor;
-    }
-  } else {
-    return request.socket.remoteAddress;
-  }
+// Behind Caddy (see deploy/sign/Caddyfile) X-Forwarded-For holds the one visitor address Caddy
+// worked out from the tunnel header. If a proxy appended to it instead, the last entry is the
+// one our own proxy wrote, so never the first (that one is whatever the visitor typed).
+export function getUserIP(request) {
+  const forwardedFor = request.headers['x-forwarded-for'];
+  const ip = forwardedFor
+    ? String(forwardedFor).split(',').pop().trim()
+    : request.socket?.remoteAddress;
+  return (ip || 'unknown').replace(/^::ffff:/, '');
 }
 
 app.use(async function (req, res, next) {

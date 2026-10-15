@@ -1,12 +1,25 @@
 # Reference proxy for Light NC Sign: plain HTTP on :8390 (TLS is done in front of it).
+# The Light NC bundle (LNC-IS deploy/sign/Caddyfile) is the same plus a strict CSP.
+{
+    servers {
+        # a tunnel in front connects from a private address; take the visitor address from its header
+        trusted_proxies static private_ranges
+        client_ip_headers Cf-Connecting-Ip
+    }
+}
+
 :8390 {
+    # the master key is for work inside the server container only
+    request_header -X-Parse-Master-Key
     header {
         Content-Security-Policy "frame-ancestors https://cloud.lightnc.org"
         -X-Frame-Options
         Referrer-Policy strict-origin-when-cross-origin
     }
     handle_path /api/* {
-        reverse_proxy server:8080
+        reverse_proxy server:8080 {
+            header_up X-Forwarded-For {client_ip}
+        }
     }
     handle {
         reverse_proxy client:3000
