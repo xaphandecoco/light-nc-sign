@@ -37,8 +37,8 @@ import {
 const serverUrl = cloudServerUrl; // process.env.SERVER_URL;
 const APPID = serverAppId;
 const masterKEY = process.env.MASTER_KEY;
-const eSignName = 'OpenSign';
-const eSigncontact = 'hello@opensignlabs.com';
+const eSignName = 'Light NC Sign';
+const eSigncontact = 'https://sign.lightnc.org';
 const docUrl = `${serverUrl}/classes/contracts_Document`;
 const headers = {
   'Content-Type': 'application/json',

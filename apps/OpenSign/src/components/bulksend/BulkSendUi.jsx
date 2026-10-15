@@ -48,7 +48,7 @@ const ALL_EXCLUDED_TYPES = new Set([
 const BulkSendUi = (props) => {
   const { t } = useTranslation();
   const appName =
-    "OpenSign™";
+    "Light NC Sign";
   const dispatch = useDispatch();
   const { isBulkLoader } = useSelector((state) => state.widget);
   const [forms, setForms] = useState([]);

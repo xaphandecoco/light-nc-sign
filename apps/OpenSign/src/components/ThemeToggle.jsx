@@ -7,9 +7,9 @@ const ThemeToggle = () => {
     const storedTheme = localStorage.getItem("theme");
     if (storedTheme === "dark") {
       setIsDark(true);
-      document.documentElement.setAttribute("data-theme", "opensigndark");
+      document.documentElement.setAttribute("data-theme", "lncsigndark");
     } else {
-      document.documentElement.setAttribute("data-theme", "opensigncss");
+      document.documentElement.setAttribute("data-theme", "lncsignlight");
     }
   }, []);
 
@@ -17,10 +17,10 @@ const ThemeToggle = () => {
     const newTheme = !isDark;
     setIsDark(newTheme);
     if (newTheme) {
-      document.documentElement.setAttribute("data-theme", "opensigndark");
+      document.documentElement.setAttribute("data-theme", "lncsigndark");
       localStorage.setItem("theme", "dark");
     } else {
-      document.documentElement.setAttribute("data-theme", "opensigncss");
+      document.documentElement.setAttribute("data-theme", "lncsignlight");
       localStorage.setItem("theme", "light");
     }
   };

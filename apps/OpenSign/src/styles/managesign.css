@@ -1,22 +1,22 @@
 /* Dark mode support for custom warning in Managesign */
-[data-theme="opensigndark"] .customwarning {
+[data-theme="lncsigndark"] .customwarning {
   background-color: #374151 !important;
   color: #E5E7EB !important;
   border-color: #4B5563 !important;
 }
 
-[data-theme="opensigndark"] .customwarning::before {
+[data-theme="lncsigndark"] .customwarning::before {
   border-color: transparent transparent #4B5563 transparent !important;
 }
 
 /* Dark mode support for signature management warning */
-[data-theme="opensigndark"] .signWarning {
+[data-theme="lncsigndark"] .signWarning {
   background-color: #374151 !important;
   color: #E5E7EB !important;
 }
 
 /* Ensure the Managesign page background is consistent */
-[data-theme="opensigndark"] .managesign-container {
+[data-theme="lncsigndark"] .managesign-container {
   background-color: #121212 !important;
   color: #F3F4F6 !important;
 }

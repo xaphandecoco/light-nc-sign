@@ -1,7 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Fasthand&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Delicious+Handrawn&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap");
+/* Typed-signature fonts are served from our own site (npm packages, SIL OFL), not Google Fonts */
+@import "@fontsource/fasthand/latin-400.css";
+@import "@fontsource/dancing-script/latin-400.css";
+@import "@fontsource/delicious-handrawn/latin-400.css";
+@import "@fontsource/cedarville-cursive/latin-400.css";
 
 .react-datepicker__input-container {
   position: initial !important;
@@ -28,7 +29,7 @@
   left: 0px;
   top: 0px;
   font-size: 12px;
-  border: 1px solid #007bff;
+  border: 1px solid #968600;
   border-radius: 50px;
 }
 .prefillCanvas {
@@ -63,7 +64,7 @@
   height: 150px;
 }
 
-[data-theme="opensigndark"] .tabWidth {
+[data-theme="lncsigndark"] .tabWidth {
   border: 1px solid #1f2937 !important;
   background-color: #1f2937 !important;
 }
@@ -86,41 +87,41 @@
 }
 
 /* Dark mode support for initials box in /managesign */
-[data-theme="opensigndark"] .intialSignature {
+[data-theme="lncsigndark"] .intialSignature {
   background-color: #1f2937 !important;
   border-color: #4b5563 !important;
 }
 
-[data-theme="opensigndark"] .intialSignatureCanvas {
+[data-theme="lncsigndark"] .intialSignatureCanvas {
   background-color: #1f2937 !important;
   border-color: #4b5563 !important;
 }
 
 /* Also support signature canvas for consistency */
-[data-theme="opensigndark"] .signatureCanvas {
+[data-theme="lncsigndark"] .signatureCanvas {
   background-color: #1f2937 !important;
   border-color: #4b5563 !important;
 }
 
 /* Dark mode support for initials box in /managesign */
-[data-theme="opensigndark"] .intialSignature {
+[data-theme="lncsigndark"] .intialSignature {
   background-color: #1f2937 !important;
   border-color: #4b5563 !important;
 }
 
-[data-theme="opensigndark"] .intialSignatureCanvas {
-  background-color: #1f2937 !important;
-  border-color: #4b5563 !important;
-}
-
-/* Also support signature canvas for consistency */
-[data-theme="opensigndark"] .signatureCanvas {
+[data-theme="lncsigndark"] .intialSignatureCanvas {
   background-color: #1f2937 !important;
   border-color: #4b5563 !important;
 }
 
 /* Also support signature canvas for consistency */
-[data-theme="opensigndark"] .mysignatureCanvas {
+[data-theme="lncsigndark"] .signatureCanvas {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+/* Also support signature canvas for consistency */
+[data-theme="lncsigndark"] .mysignatureCanvas {
   background-color: #1f2937 !important;
   border-color: #4b5563 !important;
 }

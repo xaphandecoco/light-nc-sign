@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { lazyWithRetry, withSessionValidation } from "../utils";
-import "../styles/opensigndrive.css";
+import "../styles/lncsigndrive.css";
 import {
   getThemeIconColor,
 } from "../constant/const";
@@ -17,7 +17,7 @@ import Loader from "../primitives/Loader";
 import { useTranslation } from "react-i18next";
 
 const DriveBody = lazyWithRetry(
-  () => import("../components/opensigndrive/DriveBody")
+  () => import("../components/lncsigndrive/DriveBody")
 );
 const dropdowncss =
   "absolute right-0 py-2 text-[1rem] text-left bg-base-100 border-[1px] border-gray-300 min-w-1 rounded-[0.25rem] z-[800]";
@@ -28,10 +28,10 @@ const AppLoader = () => {
     </div>
   );
 };
-function Opensigndrive() {
+function Lncsigndrive() {
   const appName =
-    "OpenSign™";
-  const drivename = appName === "OpenSign™" ? "OpenSign™" : "";
+    "Light NC Sign";
+  const drivename = appName === "Light NC Sign" ? "Light NC Sign" : "";
   const { t } = useTranslation();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -93,7 +93,7 @@ function Opensigndrive() {
       selector: '[data-tut="reactourFirst"]',
       content: () => (
         <TourContentWithBtn
-          message={t("tour-mssg.opensign-drive-1")}
+          message={t("tour-mssg.lncsign-drive-1")}
           isChecked={handleDontShow}
         />
       ),
@@ -104,7 +104,7 @@ function Opensigndrive() {
       selector: '[data-tut="reactourSecond"]',
       content: () => (
         <TourContentWithBtn
-          message={t("tour-mssg.opensign-drive-2")}
+          message={t("tour-mssg.lncsign-drive-2")}
           isChecked={handleDontShow}
         />
       ),
@@ -115,7 +115,7 @@ function Opensigndrive() {
       selector: '[data-tut="reactourThird"]',
       content: () => (
         <TourContentWithBtn
-          message={t("tour-mssg.opensign-drive-3")}
+          message={t("tour-mssg.lncsign-drive-3")}
           isChecked={handleDontShow}
         />
       ),
@@ -126,7 +126,7 @@ function Opensigndrive() {
       selector: '[data-tut="reactourForth"]',
       content: () => (
         <TourContentWithBtn
-          message={t("tour-mssg.opensign-drive-4")}
+          message={t("tour-mssg.lncsign-drive-4")}
           isChecked={handleDontShow}
         />
       ),
@@ -156,7 +156,7 @@ function Opensigndrive() {
             selector: '[data-tut="reactourFifth"]',
             content: () => (
               <TourContentWithBtn
-                message={t("tour-mssg.opensign-drive-5")}
+                message={t("tour-mssg.lncsign-drive-5")}
                 isChecked={handleDontShow}
               />
             ),
@@ -167,7 +167,7 @@ function Opensigndrive() {
             selector: '[data-tut="reactourSixth"]',
             content: () => (
               <TourContentWithBtn
-                message={t("tour-mssg.opensign-drive-6")}
+                message={t("tour-mssg.lncsign-drive-6")}
                 isChecked={handleDontShow}
               />
             ),
@@ -178,7 +178,7 @@ function Opensigndrive() {
             selector: '[data-tut="reactourSeventh"]',
             content: () => (
               <TourContentWithBtn
-                message={t("tour-mssg.opensign-drive-7")}
+                message={t("tour-mssg.lncsign-drive-7")}
                 isChecked={handleDontShow}
               />
             ),
@@ -209,7 +209,7 @@ function Opensigndrive() {
       }
       if (!docId) {
         setFolderName([
-          { name: t("OpenSign-drive", { appName: drivename }), objectId: "" }
+          { name: t("LncSign-drive", { appName: drivename }), objectId: "" }
         ]);
       }
     } catch (e) {
@@ -931,4 +931,4 @@ function Opensigndrive() {
   );
 }
 
-export default Opensigndrive;
+export default Lncsigndrive;

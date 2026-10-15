@@ -494,7 +494,7 @@ const ManageSign = () => {
 
               <div
                 onClick={() => stampRef.current.click()}
-                className="mystampCanvas opensigndark:bg-[#1f2937] cursor-pointer border-[2px] opensigncss:border-[#888] opensigndark:border-[#4b5563] rounded-box flex flex-col overflow-hidden w-full h-full aspect-[5/2] justify-center items-center mr-2"
+                className="mystampCanvas lncsigndark:bg-[#1f2937] cursor-pointer border-[2px] lncsignlight:border-[#888] lncsigndark:border-[#4b5563] rounded-box flex flex-col overflow-hidden w-full h-full aspect-[5/2] justify-center items-center mr-2"
               >
                 {stamp ? (
                   <img

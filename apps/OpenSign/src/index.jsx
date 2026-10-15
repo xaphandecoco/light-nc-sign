@@ -1,4 +1,7 @@
 import ReactDOM from "react-dom/client";
+import "./styles/bootstrap-4.0.0.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "./styles/fa-light-shim.css";
 import "./index.css";
 import "./styles/dark-theme-improvements.css";
 import App from "./App";
@@ -12,7 +15,7 @@ import "./i18n";
 import { ScrollProvider } from "./context/ScrollPdfContext";
 
 const appId =
-  import.meta.env.VITE_APPID || process.env.REACT_APP_APPID || "opensign";
+  import.meta.env.VITE_APPID || process.env.REACT_APP_APPID || "lnc-sign";
 const serverUrl = serverUrl_fn();
 Parse.initialize(appId);
 Parse.serverURL = serverUrl;
@@ -23,7 +26,7 @@ if (localStorage.getItem("showUpgradeProgress")) {
 
 const savedTheme = localStorage.getItem("theme");
 if (savedTheme === "dark") {
-  document.documentElement.setAttribute("data-theme", "opensigndark");
+  document.documentElement.setAttribute("data-theme", "lncsigndark");
 }
 
 

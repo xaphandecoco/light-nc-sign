@@ -13,7 +13,7 @@ import { saveAs } from "file-saver";
 
 function DownloadPdfZip(props) {
   const appName =
-    "OpenSign™";
+    "Light NC Sign";
   const { t } = useTranslation();
   const [selectType, setSelectType] = useState(1);
   const [isDownloading, setIsDownloading] = useState(false);

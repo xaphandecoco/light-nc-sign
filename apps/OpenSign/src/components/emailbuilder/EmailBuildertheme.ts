@@ -1,7 +1,7 @@
 import { alpha, createTheme, darken, lighten } from "@mui/material/styles";
 
 const BRAND_NAVY = "#212443";
-const BRAND_BLUE = "#0079CC";
+const BRAND_BLUE = "#3F3F40";
 const BRAND_GREEN = "#1F8466";
 const BRAND_RED = "#E81212";
 const BRAND_YELLOW = "#F6DC9F";

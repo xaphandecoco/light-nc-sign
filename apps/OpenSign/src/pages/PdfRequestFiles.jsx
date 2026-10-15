@@ -85,7 +85,7 @@ function PdfRequestFiles(
   const defaultSignImg = useSelector((state) => state.widget.defaultSignImg);
   const myInitial = useSelector((state) => state.widget.myInitial);
   const appName =
-    "OpenSign™";
+    "Light NC Sign";
   const [pdfDetails, setPdfDetails] = useState([]);
   const [signedSigners, setSignedSigners] = useState([]);
   const [unsignedSigners, setUnSignedSigners] = useState([]);

@@ -37,8 +37,6 @@ const TITLE_MAP = {
   "/debugpdf": "Debug Pdf",
   "/forgetpassword": "forgot-password",
   "/success": "success",
-  "/addadmin": "add-admin",
-  "/upgrade-2.1": "add-admin",
   "/draftDocument": "New Document",
   "/login/:base64url": "Request Signatures",
 
@@ -58,7 +56,7 @@ export default function Title() {
   const { pathname, state } = useLocation();
   const { t } = useTranslation();
   const appName =
-    "OpenSign™";
+    "Light NC Sign";
   const logo = useMemo(() => localStorage.getItem("favicon"), []);
   const prefix = useMemo(
     () => resolveTitle(pathname, state?.title),

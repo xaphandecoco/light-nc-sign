@@ -43,7 +43,7 @@ const DocumentsReport = (props) => {
   const titleRef = useRef(null);
   const titleElement = useElSize(titleRef);
   const appName =
-    "OpenSign™";
+    "Light NC Sign";
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();

@@ -67,7 +67,7 @@ export const BUTTONS: TButtonProps[] = [
       type: "Image",
       data: {
         props: {
-          url: "https://ui-avatars.com/api/?size=128",
+          url: `${window.location.origin}/placeholder.svg`,
           alt: "Sample product",
           contentAlignment: "middle",
           linkHref: null
@@ -83,7 +83,7 @@ export const BUTTONS: TButtonProps[] = [
       type: "Avatar",
       data: {
         props: {
-          imageUrl: "https://ui-avatars.com/api/?size=128",
+          imageUrl: `${window.location.origin}/placeholder.svg`,
           shape: "circle"
         },
         style: { padding: { top: 16, bottom: 16, left: 24, right: 24 } }

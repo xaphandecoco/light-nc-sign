@@ -111,7 +111,7 @@ const Header = ({ isConsole, setIsLoggingOut }) => {
   useEffect(() => {
     const updateThemeStatus = () => {
       const isDarkTheme =
-        document.documentElement.getAttribute("data-theme") === "opensigndark";
+        document.documentElement.getAttribute("data-theme") === "lncsigndark";
       setIsDarkTheme(isDarkTheme);
     };
     updateThemeStatus();
@@ -203,15 +203,6 @@ const Header = ({ isConsole, setIsLoggingOut }) => {
             >
               {!isConsole && (
                 <>
-                    <li
-                      onClick={() =>
-                        openInNewTab("https://docs.opensignlabs.com")
-                      }
-                    >
-                      <span>
-                        <i className="fa-light fa-book"></i> {t("docs")}
-                      </span>
-                    </li>
                   <li
                     onClick={() => {
                       setIsOpen(false);

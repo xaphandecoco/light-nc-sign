@@ -205,7 +205,7 @@ a {
 }
 
 /* Dark mode support for HoverCard */
-[data-theme="opensigndark"] .HoverCardContent {
+[data-theme="lncsigndark"] .HoverCardContent {
   background-color: #1F2937;
   color: #E5E7EB;
   box-shadow:
@@ -234,7 +234,7 @@ a {
 }
 
 /* Dark mode support for HoverCard arrow */
-[data-theme="opensigndark"] .HoverCardArrow {
+[data-theme="lncsigndark"] .HoverCardArrow {
   fill: #1F2937;
 }
 

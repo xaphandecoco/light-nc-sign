@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import Parse from "parse";
 import { useDispatch } from "react-redux";
-import axios from "axios";
 import { NavLink, useNavigate, useLocation } from "react-router";
 import login_img from "../assets/images/login_img.svg";
 import { useWindowSize } from "../hook/useWindowSize";
-import ModalUi from "../primitives/ModalUi";
 import {
   emailRegex,
 } from "../constant/const";
@@ -13,18 +11,13 @@ import Alert from "../primitives/Alert";
 import { appInfo } from "../constant/appinfo";
 import { fetchAppInfo } from "../redux/reducers/infoReducer";
 import { showTenant } from "../redux/reducers/ShowTenant";
-import {
-  getAppLogo,
-  saveLanguageInLocal,
-  usertimezone
-} from "../constant/Utils";
+import { getAppLogo, saveLanguageInLocal } from "../constant/Utils";
 import Loader from "../primitives/Loader";
 import { useTranslation } from "react-i18next";
 import SelectLanguage from "../components/pdf/SelectLanguage";
 
 function Login() {
-  const appName =
-    "OpenSign™";
+  const appName = "Light NC Sign";
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,14 +29,8 @@ function Login() {
     alertType: "success",
     alertMsg: "",
     passwordVisible: false,
-    loading: false,
-    thirdpartyLoader: false,
+    loading: false
   });
-  const [userDetails, setUserDetails] = useState({
-    Company: "",
-    Destination: ""
-  });
-  const [isModal, setIsModal] = useState(false);
   const [image, setImage] = useState();
   const [errMsg, setErrMsg] = useState();
   useEffect(() => {
@@ -76,10 +63,6 @@ function Login() {
     const app = await getAppLogo();
     if (app?.error === "invalid_json") {
       setErrMsg(t("server-down", { appName: appName }));
-    } else if (
-      app?.user === "not_exist"
-    ) {
-      navigate("/addadmin");
     }
     if (app?.logo) {
       setImage(app?.logo);
@@ -144,81 +127,6 @@ function Login() {
     await handleLogin();
   };
 
-  const setThirdpartyLoader = (value) => {
-    setState({ ...state, thirdpartyLoader: value });
-  };
-
-  const thirdpartyLoginfn = async (sessionToken) => {
-    const baseUrl = localStorage.getItem("baseUrl");
-    const parseAppId = localStorage.getItem("parseAppId");
-    const res = await axios.get(baseUrl + "users/me", {
-      headers: {
-        "X-Parse-Session-Token": sessionToken,
-        "X-Parse-Application-Id": parseAppId
-      }
-    });
-    await Parse.User.become(sessionToken).then(() => {
-      window.localStorage.setItem("accesstoken", sessionToken);
-    });
-    if (res.data) {
-      let _user = res.data;
-      setLocalVar(_user);
-      // Check extended class user role and tenentId
-      try {
-        const userSettings = appInfo.settings;
-        const extUser = await Parse.Cloud.run("getUserDetails");
-        if (extUser) {
-          const IsDisabled = extUser?.get("IsDisabled") || false;
-          if (!IsDisabled) {
-            const userRole = extUser?.get("UserRole");
-            const menu =
-              userRole && userSettings.find((menu) => menu.role === userRole);
-            if (menu) {
-              const _currentRole = userRole;
-              const redirectUrl =
-                location?.state?.from || `/${menu.pageType}/${menu.pageId}`;
-              const _role = _currentRole.replace("contracts_", "");
-              const extInfo = JSON.parse(JSON.stringify(extUser));
-              localStorage.setItem("_user_role", _role);
-              localStorage.setItem("Extand_Class", JSON.stringify([extUser]));
-              localStorage.setItem("userEmail", extInfo?.Email);
-              localStorage.setItem("username", extInfo?.Name);
-              if (extInfo?.TenantId) {
-                const tenant = {
-                  Id: extInfo?.TenantId?.objectId || "",
-                  Name: extInfo?.TenantId?.TenantName || ""
-                };
-                localStorage.setItem("TenantId", tenant?.Id);
-                dispatch(showTenant(tenant?.Name));
-                localStorage.setItem("TenantName", tenant?.Name);
-              }
-              localStorage.setItem("PageLanding", menu.pageId);
-              localStorage.setItem("defaultmenuid", menu.menuId);
-              localStorage.setItem("pageType", menu.pageType);
-                navigate(redirectUrl);
-            } else {
-              showToast("danger", t("role-not-found"));
-              logOutUser();
-            }
-          } else {
-            showToast("danger", t("do-not-access-contact-admin"));
-            logOutUser();
-          }
-        } else {
-          showToast("danger", t("user-not-found"));
-          logOutUser();
-        }
-      } catch (error) {
-        console.error("err in fetching extUser", err);
-        showToast("danger", `${err.message}`);
-        const payload = { sessionToken: _user.sessionToken };
-        handleSubmitbtn(payload);
-      } finally {
-        setThirdpartyLoader(false);
-      }
-    }
-  };
-
   const GetLoginData = async () => {
     setState({ ...state, loading: true });
     try {
@@ -278,53 +186,7 @@ function Login() {
     setState({ ...state, passwordVisible: !state.passwordVisible });
   };
 
-  const handleSubmitbtn = async (e) => {
-    e.preventDefault();
-    if (userDetails.Destination && userDetails.Company) {
-      setThirdpartyLoader(true);
-      const payload = { sessionToken: localStorage.getItem("accesstoken") };
-      const userInformation = JSON.parse(
-        localStorage.getItem("UserInformation")
-      );
-      if (payload && payload.sessionToken) {
-        const params = {
-          userDetails: {
-            name: userInformation.name,
-            email: userInformation.email,
-            phone: userInformation?.phone || "",
-            role: "contracts_User",
-            company: userDetails.Company,
-            jobTitle: userDetails.Destination,
-            timezone: usertimezone
-          }
-        };
-        const userSignUp = await Parse.Cloud.run("usersignup", params);
-        if (userSignUp && userSignUp.sessionToken) {
-          const LocalUserDetails = {
-            name: userInformation.name,
-            email: userInformation.email,
-            phone: userInformation?.phone || "",
-            company: userDetails.Company,
-            jobTitle: userDetails.JobTitle
-          };
-          localStorage.setItem("userDetails", JSON.stringify(LocalUserDetails));
-          thirdpartyLoginfn(userSignUp.sessionToken);
-        } else {
-          alert(userSignUp.message);
-        }
-      } else if (
-        payload &&
-        payload.message.replace(/ /g, "_") === "Internal_server_err"
-      ) {
-        alert(t("server-error"));
-      }
-    } else {
-      showToast("warning", t("fill-required-details!"));
-    }
-  };
-
   const logOutUser = async () => {
-    setIsModal(false);
     try {
       await Parse.User.logOut();
     } catch (err) {
@@ -390,8 +252,8 @@ function Login() {
               setState({ ...state, loading: false });
               navigate(redirectUrl);
           } else {
-            setState({ ...state, loading: false });
-            setIsModal(true);
+            showToast("danger", t("role-not-found"));
+            logOutUser();
           }
         } else {
           showToast("danger", t("do-not-access-contact-admin"));
@@ -537,84 +399,6 @@ function Login() {
               <Alert type={state.alertType}>{state.alertMsg}</Alert>
             )}
           </div>
-          <ModalUi
-            isOpen={isModal}
-            title={t("additional-info")}
-            showClose={false}
-          >
-            <form className="px-4 py-3 text-base-content">
-              <div className="mb-3">
-                <label
-                  htmlFor="Company"
-                  style={{ display: "flex" }}
-                  className="block text-xs font-semibold"
-                >
-                  {t("company")}{" "}
-                  <span className="text-[red] text-[13px]">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="op-input op-input-bordered op-input-sm focus:outline-none hover:border-base-content w-full text-xs"
-                  id="Company"
-                  value={userDetails.Company}
-                  onChange={(e) =>
-                    setUserDetails({
-                      ...userDetails,
-                      Company: e.target.value
-                    })
-                  }
-                  onInvalid={(e) =>
-                    e.target.setCustomValidity(t("input-required"))
-                  }
-                  onInput={(e) => e.target.setCustomValidity("")}
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="JobTitle"
-                  style={{ display: "flex" }}
-                  className="block text-xs font-semibold"
-                >
-                  {t("job-title")}
-                  <span className="text-[red] text-[13px]">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="op-input op-input-bordered op-input-sm focus:outline-none hover:border-base-content w-full text-xs"
-                  id="JobTitle"
-                  value={userDetails.Destination}
-                  onChange={(e) =>
-                    setUserDetails({
-                      ...userDetails,
-                      Destination: e.target.value
-                    })
-                  }
-                  onInvalid={(e) =>
-                    e.target.setCustomValidity(t("input-required"))
-                  }
-                  onInput={(e) => e.target.setCustomValidity("")}
-                  required
-                />
-              </div>
-              <div className="mt-4 gap-2 flex flex-row">
-                <button
-                  type="button"
-                  className="op-btn op-btn-primary"
-                  onClick={(e) => handleSubmitbtn(e)}
-                >
-                  {t("login")}
-                </button>
-                <button
-                  type="button"
-                  className="op-btn op-btn-ghost text-base-content"
-                  onClick={logOutUser}
-                >
-                  {t("cancel")}
-                </button>
-              </div>
-            </form>
-          </ModalUi>
         </>
       ) : (
         <div

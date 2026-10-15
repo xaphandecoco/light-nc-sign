@@ -509,7 +509,7 @@ function PlaceholderType(props) {
       );
     case "date":
       return iswidgetEnable || props?.data?.Role === "prefill" ? (
-        <div className={`${selectWidgetCls} outline-[#007bff]`}>
+        <div className={`${selectWidgetCls} outline-[#968600]`}>
           <span
             style={{ fontSize: fontSize, color: fontColor }}
             className={`${isReadOnly ? `select-none opacity-25` : ``} ${selectWidgetCls} overflow-hidden`}

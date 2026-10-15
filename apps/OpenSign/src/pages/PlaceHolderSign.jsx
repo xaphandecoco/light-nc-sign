@@ -1201,7 +1201,7 @@ function PlaceHolderSign() {
               text={t("sign-url")}
               url={data.url}
             >
-              <i className="fa-light fa-share-from-square op-link opensigncss:op-link-secondary opensigndark:op-link-primary no-underline"></i>
+              <i className="fa-light fa-share-from-square op-link lncsignlight:op-link-secondary lncsigndark:op-link-primary no-underline"></i>
             </ShareButton>
           </div>
         </div>

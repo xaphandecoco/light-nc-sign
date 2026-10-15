@@ -1,23 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Package from "../../package.json";
-import axios from "axios";
 import { openInNewTab } from "../constant/Utils";
+import { useSourceUrl } from "./SourceNotice";
 import { useTranslation } from "react-i18next";
 const Footer = () => {
-  const appName = "OpenSign™";
+  const appName = "Light NC Sign";
   const { t } = useTranslation();
   const [showButton, setShowButton] = useState(false);
-  const [version, setVersion] = useState("");
-  useEffect(() => {
-    axios
-      .get("/version.txt")
-      .then((response) => {
-        setVersion(response.data); // Set the retrieved data to the state variable
-      })
-      .catch((error) => {
-        console.error("Error reading the file:", error);
-      });
-  }, []);
+  const sourceUrl = useSourceUrl();
+  const version = sourceUrl.split("/tree/")[1] || "";
 
   const handleScroll = () => {
     if (window.pageYOffset >= 50) {
@@ -41,9 +31,7 @@ const Footer = () => {
   }, []);
 
   const openUrl = () => {
-    openInNewTab(
-      "https://github.com/OpenSignLabs/OpenSign/releases/tag/" + version
-    );
+    openInNewTab(sourceUrl);
   };
   return (
     <>
@@ -53,7 +41,7 @@ const Footer = () => {
             {t("all-right")} &copy; {new Date().getFullYear()} &nbsp;
             <span onClick={openUrl} className="hover:underline cursor-pointer">
               {appName} ( {t("version")}:{" "}
-              {version ? version : `${Package.version} `})
+              {version})
             </span>
           </p>
         </aside>

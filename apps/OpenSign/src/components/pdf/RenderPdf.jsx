@@ -423,7 +423,7 @@ function RenderPdf(props) {
       w.style.border =
         w.id === String(scrollTriggerId)
           ? "1.5px solid red" // active widget in red
-          : "1.5px solid #007bff"; // others in blue
+          : "1.5px solid #968600"; // others in blue
     });
   }, [
     scrollTriggerId,
@@ -700,7 +700,7 @@ function RenderPdf(props) {
                           handleCellSettingModal={props.handleCellSettingModal}
                           setIsCheckbox={props.setIsCheckbox}
                           isFreeResize={props.isSelfSign ? true : false}
-                          isOpenSignPad={true}
+                          isLncSignPad={true}
                           assignedWidgetId={props.assignedWidgetId}
                           setCellCount={props.setCellCount}
                           setFontSize={props.setFontSize}
@@ -832,7 +832,7 @@ function RenderPdf(props) {
                     isResize={props.isResize}
                     setIsResize={props.setIsResize}
                     isFreeResize={true}
-                    isOpenSignPad={true}
+                    isLncSignPad={true}
                     calculateFontsize={pageCalcFont}
                     currWidgetsDetails={props?.currWidgetsDetails}
                     setIsReqSignTourDisabled={props.setIsReqSignTourDisabled}
@@ -1035,7 +1035,7 @@ function RenderPdf(props) {
                   top: "0px",
                   width: "0px",
                   height: "0px",
-                  border: "2px dashed #007bff",
+                  border: "2px dashed #968600",
                   backgroundColor: "rgba(0, 123, 255, 0.1)",
                   pointerEvents: "none",
                   zIndex: 9999

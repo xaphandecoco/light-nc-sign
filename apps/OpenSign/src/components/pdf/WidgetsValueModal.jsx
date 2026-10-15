@@ -1,7 +1,6 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import ModalUi from "../../primitives/ModalUi";
 import { useTranslation } from "react-i18next";
-import { removeBackground } from "@imgly/background-removal";
 import {
   changeDateToMomentFormat,
   checkRegularExpress,
@@ -72,7 +71,7 @@ const fontOptions = [
 ];
 const textInputcls =
   "op-input op-input-bordered op-input-sm focus:outline-none text-base-content hover:border-base-content w-full text-xs";
-const isTabCls = "bg-[#002864] text-white rounded-[15px] px-[10px] py-[4px]";
+const isTabCls = "bg-[#3F3F40] text-white rounded-[15px] px-[10px] py-[4px]";
 
 function WidgetsValueModal(props) {
   const dispatch = useDispatch();
@@ -124,7 +123,6 @@ function WidgetsValueModal(props) {
   const [isLoader, setIsLoader] = useState(false);
   const [hint, setHint] = useState("");
   const [isShowValidation, setIsShowValidation] = useState(false);
-  const [removeBgEnabled, setRemoveBgEnabled] = useState(false);
   const [originalImage, setOriginalImage] = useState(null);
   const [selectedCheckbox, setSelectedCheckbox] = useState(
     currWidgetsDetails.type === "checkbox" &&
@@ -238,9 +236,8 @@ function WidgetsValueModal(props) {
   }, [currWidgetsDetails]); // Added currWidgetsDetails to dependency array for reset logic
 
   useEffect(() => {
-    // Reset originalImage and removeBgEnabled when widget details change
+    // Reset originalImage when widget details change
     setOriginalImage(null);
-    setRemoveBgEnabled(false);
   }, [currWidgetsDetails?.key]);
 
   //function to save date and format after selected new date in response field and after finish document it should embed the new selected date instead of current date
@@ -298,7 +295,6 @@ function WidgetsValueModal(props) {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setOriginalImage(null); // Reset original image when a new file is selected
-      setRemoveBgEnabled(false); // Optionally reset toggle
       // Ensure compressedFileSize calls setImage, which then triggers the useEffect for BG removal.
       compressedFileSize(file, setImage);
     }
@@ -592,7 +588,6 @@ function WidgetsValueModal(props) {
       }
       setImage(null);
       setOriginalImage(null); // Add this
-      setRemoveBgEnabled(false); // Optionally reset toggle
       setSignature("");
       if (isTab === "type") {
         setTypedSignature("");
@@ -867,95 +862,22 @@ function WidgetsValueModal(props) {
     dispatch(setTypedSignFont(fontFamily));
   };
 
-  // Effect to store original image and apply initial BG removal if enabled
+  // Effect to store the first uploaded image as the original
   useEffect(() => {
     if (image?.src && !originalImage && (isImageSelect || isImageOrStamp)) {
       // If there's an image, and we haven't stored an original for it yet,
       // and we are in a relevant tab/widget type for uploads
       setOriginalImage(image); // Store the current image as original
 
-      if (removeBgEnabled) {
-        setIsLoader(true);
-        removeBackground(image.src)
-          .then((blob) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              // setImage({ src: reader.result, imgType: blob.type });
-            };
-            reader.onerror = () => {
-              console.error(
-                "Error converting blob to data URL after BG removal."
-              );
-              // setImage(image); // Already original if error
-            };
-            reader.readAsDataURL(blob);
-          })
-          .catch((error) => {
-            console.error("Error removing background:", error);
-            // setImage(image); // Already original if error
-          })
-          .finally(() => setIsLoader(false));
-      }
     }
   }, [
     image,
     originalImage,
-    removeBgEnabled,
     isImageSelect,
     currWidgetsDetails?.type,
     setIsLoader,
     setImage,
     setOriginalImage
-  ]);
-
-  // Effect for toggling BG removal ON/OFF
-  useEffect(() => {
-    if (!originalImage?.src || !(isImageSelect || isImageOrStamp)) {
-      // No original image to process or not in a relevant upload state
-      return;
-    }
-
-    if (removeBgEnabled) {
-      // removeBgEnabled is true
-      // Only process if current image is the original (BG not yet removed or was reverted)
-      if (image?.src === originalImage.src) {
-        setIsLoader(true);
-        removeBackground(originalImage.src)
-          .then((blob) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setImage({ src: reader.result, imgType: blob.type });
-            };
-            reader.onerror = () => {
-              console.error("Error converting blob to data URL for toggle ON.");
-              setImage(originalImage); // Fallback
-            };
-            reader.readAsDataURL(blob);
-          })
-          .catch((error) => {
-            console.error("Error removing background for toggle ON:", error);
-            setImage(originalImage); // Fallback
-          })
-          .finally(() => setIsLoader(false));
-      }
-    } else {
-      // removeBgEnabled is false, revert to originalImage
-      if (image?.src !== originalImage.src) {
-        if (isTab === "myStamp") {
-          setImage(null);
-        } else {
-          setImage(originalImage);
-        }
-      }
-    }
-  }, [
-    removeBgEnabled,
-    originalImage,
-    image,
-    isImageSelect,
-    currWidgetsDetails?.type,
-    setImage,
-    setIsLoader
   ]);
 
   const savesigncheckbox = (
@@ -1193,21 +1115,6 @@ function WidgetsValueModal(props) {
             {(uniqueId || (image && (isImageSelect || isImageOrStamp))) && (
               <div className="flex flex-wrap flex-row sm:justify-center items-center gap-x-3 my-2 text-base-content">
                 {uniqueId && autoSignAll}
-                {image && (isImageSelect || isImageOrStamp) && (
-                  <label
-                    htmlFor={`removeBgToggleModal-${currWidgetsDetails?.key}`}
-                    className="mb-0 cursor-pointer flex items-center text-sm"
-                  >
-                    <input
-                      type="checkbox"
-                      id={`removeBgToggleModal-${currWidgetsDetails?.key}`} // Unique ID
-                      className="mr-2 op-checkbox op-checkbox-xs md:op-checkbox-sm"
-                      checked={removeBgEnabled}
-                      onChange={() => setRemoveBgEnabled(!removeBgEnabled)}
-                    />
-                    {t("remove-background")}
-                  </label>
-                )}
                 {accesstoken && isSignOrInitials && (
                   <div className="flex justify-start my-1">
                     {mysign?.isVisible && savesigncheckbox}
@@ -1300,21 +1207,6 @@ function WidgetsValueModal(props) {
             {(uniqueId || image) && (
               <div className="flex flex-wrap flex-row sm:justify-center items-center gap-x-3 my-2 text-base-content">
                 {uniqueId && autoSignAll}
-                {image && (
-                  <label
-                    htmlFor={`removeBgToggleModal-${currWidgetsDetails?.key}`}
-                    className="mb-0 cursor-pointer flex items-center text-sm"
-                  >
-                    <input
-                      type="checkbox"
-                      id={`removeBgToggleModal-${currWidgetsDetails?.key}`} // Unique ID
-                      className="mr-2 op-checkbox op-checkbox-xs md:op-checkbox-sm"
-                      checked={removeBgEnabled}
-                      onChange={() => setRemoveBgEnabled(!removeBgEnabled)}
-                    />
-                    {t("remove-background")}
-                  </label>
-                )}
                 {accesstoken && (
                   <div className="flex justify-start my-1">
                     {mysign?.isVisible && savesigncheckbox}
@@ -1507,7 +1399,7 @@ function WidgetsValueModal(props) {
             {/* Input + format group */}
             <div className="inline-flex flex-col items-center">
               {/* Date input */}
-              <div className="border-[1px] opensigncss:border-gray-300 opensigndark:border-base-content text-base-content rounded-[2px] px-3 py-1 inline-flex">
+              <div className="border-[1px] lncsignlight:border-gray-300 lncsigndark:border-base-content text-base-content rounded-[2px] px-3 py-1 inline-flex">
                 <DatePicker
                   renderCustomHeader={({ date, changeYear, changeMonth }) => (
                     <div className="flex items-center gap-2 ml-2">

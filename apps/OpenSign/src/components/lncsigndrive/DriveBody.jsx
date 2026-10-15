@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useRef } from "react";
-import "../../styles/opensigndrive.css";
+import "../../styles/lncsigndrive.css";
 import axios from "axios";
 import { ContextMenu } from "radix-ui";
 import { useNavigate } from "react-router";

@@ -2,7 +2,7 @@ import axios from "axios";
 import { serverUrl_fn } from "./appinfo";
 const parseAppId = process.env.REACT_APP_APPID
   ? process.env.REACT_APP_APPID
-  : "opensign";
+  : "lnc-sign";
 const serverUrl = serverUrl_fn();
 const commonheader = {
   "Content-Type": "application/json",

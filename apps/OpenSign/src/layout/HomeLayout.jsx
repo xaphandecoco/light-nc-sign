@@ -19,7 +19,7 @@ import SessionExpiredModal from "../primitives/SessionExpiredModal";
 
 const HomeLayout = () => {
   const appName =
-    "OpenSign™";
+    "Light NC Sign";
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const tourArr = useSelector((state) => state.TourSteps);
@@ -81,7 +81,7 @@ const HomeLayout = () => {
   }, [tourArr]);
 
   const handleDynamicSteps = () => {
-    const github = "https://github.com/OpenSignLabs/OpenSign";
+    const github = "https://github.com/xaphandecoco/light-nc-sign";
     if (tourArr && tourArr.length > 0) {
       const resArr = tourArr.map((obj, index) => {
         if (tourArr.length - 1 === index) {

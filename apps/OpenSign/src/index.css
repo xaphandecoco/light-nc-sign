@@ -108,7 +108,7 @@ body {
 /* You can use classes like: icon-improved, icon-muted, icon-disabled, op-btn-vscode-disabled */
 
 /* React-tour and ReactTooltip dark mode styling */
-[data-theme="opensigndark"] {
+[data-theme="lncsigndark"] {
   .op-border-hover {
     @apply border-gray-700 hover:border-base-content;
   }
@@ -160,8 +160,8 @@ body {
 
   /* Tour content improvements */
   .reactour__badge {
-    background-color: #007acc !important;
-    color: #ffffff !important;
+    background-color: #FAD719 !important;
+    color: #3F3F40 !important;
   }
 
   .reactour__popover h1,
@@ -206,8 +206,8 @@ body {
   }
 
   .react-datepicker__day--selected {
-    background-color: #007acc !important;
-    color: #ffffff !important;
+    background-color: #FAD719 !important;
+    color: #3F3F40 !important;
   }
 
   .react-datepicker__day--keyboard-selected {

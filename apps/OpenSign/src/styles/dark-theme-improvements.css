@@ -1,7 +1,7 @@
-/* VS Code Dark Theme Improvements for OpenSign */
+/* Dark theme improvements for Light NC Sign */
 
 /* Better disabled button styling for dark mode */
-[data-theme="opensigndark"] {
+[data-theme="lncsigndark"] {
   /* Primary button disabled state */
   .op-btn-primary:disabled {
     background-color: #3C3C3C !important;
@@ -125,13 +125,13 @@
   .op-btn:focus-visible,
   .op-input:focus-visible,
   .op-select:focus-visible {
-    outline: 2px solid #007ACC !important;
+    outline: 2px solid #FFE042 !important;
     outline-offset: 2px !important;
   }
 }
 
 /* Ensure these styles don't affect light mode */
-[data-theme="opensigncss"] {
+[data-theme="lncsignlight"] {
   /* Keep original colors for light mode */
   .icon-disabled {
     color: #9CA3AF;

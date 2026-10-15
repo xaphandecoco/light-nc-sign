@@ -1,3 +1,10 @@
+> **Light NC Sign** is a rebranded fork of [OpenSign](https://github.com/OpenSignLabs/OpenSign) used by Light of the World
+> Worldwide Ministries - North Caloocan. It is licensed under the **GNU AGPL-3.0** (see `LICENSE`), the same as upstream.
+> The source of the running version is always linked from the page footer, and the changes are listed in
+> [`NOTICE.md`](NOTICE.md). Releases (Docker image archives with `SHA256SUMS`) are on the
+> [Releases](https://github.com/xaphandecoco/light-nc-sign/releases) page. Public sign-up is turned off; the owner
+> account is created with the server master key before the public address is opened. The text below is the upstream README.
+
 <h1 align="center"><a href='https://www.opensignlabs.com'><img src=https://github.com/OpenSignLabs/OpenSign/assets/5486116/e518cc9c-5de3-47da-950b-f93336b9f14e></a>
 </h1><div align="center">
 

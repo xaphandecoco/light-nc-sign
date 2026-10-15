@@ -21,23 +21,21 @@ import { serverUrl_fn } from "./constant/appinfo";
 import DocSuccessPage from "./pages/DocSuccessPage";
 import DragProvider from "./components/DragProivder";
 import Title from "./components/Title";
+import SourceNotice from "./components/SourceNotice";
+import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 const DebugPdf = lazyWithRetry(() => import("./pages/DebugPdf"));
 const ForgetPassword = lazyWithRetry(() => import("./pages/ForgetPassword"));
 const GuestLogin = lazyWithRetry(() => import("./pages/GuestLogin"));
 const ChangePassword = lazyWithRetry(() => import("./pages/ChangePassword"));
 const UserProfile = lazyWithRetry(() => import("./pages/UserProfile"));
-const Opensigndrive = lazyWithRetry(() => import("./pages/Opensigndrive"));
+const Lncsigndrive = lazyWithRetry(() => import("./pages/Lncsigndrive"));
 const ManageSign = lazyWithRetry(() => import("./pages/Managesign"));
-const AddAdmin = lazyWithRetry(() => import("./pages/AddAdmin"));
-const UpdateExistUserAdmin = lazyWithRetry(
-  () => import("./pages/UpdateExistUserAdmin")
-);
 const Preferences = lazyWithRetry(() => import("./pages/Preferences"));
 const Login = lazyWithRetry(() => import("./pages/Login"));
 const VerifyDocument = lazyWithRetry(() => import("./pages/VerifyDocument"));
 const EmailBuilder = lazyWithRetry(() => import("./pages/EmailBuilder"));
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl; // served from our own site (no CDN)
 const AppLoader = () => {
   return (
     <div className="flex justify-center items-center h-[100vh]">
@@ -49,7 +47,7 @@ function App() {
   const [isloading, setIsLoading] = useState(true);
   useEffect(() => {
     // initialize creds
-    const id = process.env.REACT_APP_APPID ?? "opensign";
+    const id = process.env.REACT_APP_APPID ?? "lnc-sign";
     localStorage.setItem("parseAppId", id);
     localStorage.setItem("baseUrl", `${serverUrl_fn()}/`);
     hideUpgradeProgress();
@@ -59,6 +57,7 @@ function App() {
 
   return (
     <div className="bg-base-200">
+      <SourceNotice />
       {isloading ? (
         <AppLoader />
       ) : (
@@ -67,11 +66,6 @@ function App() {
           <Routes>
             <Route element={<ValidateRoute />}>
               <Route exact path="/" element={<Lazy Page={Login} />} />
-                  <Route path="/addadmin" element={<Lazy Page={AddAdmin} />} />
-                  <Route
-                    path="/upgrade-2.1"
-                    element={<Lazy Page={UpdateExistUserAdmin} />}
-                  />
             </Route>
             <Route element={<Validate />}>
               <Route
@@ -99,7 +93,7 @@ function App() {
               <Route path="/report/:id" element={<Report />} />
               <Route path="/dashboard/:id" element={<Dashboard />} />
               <Route path="/profile" element={<Lazy Page={UserProfile} />} />
-              <Route path="/drive" element={<Lazy Page={Opensigndrive} />} />
+              <Route path="/drive" element={<Lazy Page={Lncsigndrive} />} />
               <Route path="/managesign" element={<Lazy Page={ManageSign} />} />
               <Route
                 path="/template/:templateId"

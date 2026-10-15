@@ -1,0 +1,7 @@
+/* The upstream app used Font Awesome Pro "light" icons from a private CDN (commercial licence).
+   We ship Font Awesome Free (OFL/CC BY 4.0/MIT) from our own site and draw "light" icons with the
+   Free solid set. Icons that exist only in Pro show as blank squares; see NOTICE.md. */
+.fa-light {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+}

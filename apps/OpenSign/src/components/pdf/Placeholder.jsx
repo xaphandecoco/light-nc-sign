@@ -24,7 +24,7 @@ import {
 } from "../../constant/Utils";
 import PlaceholderType from "./PlaceholderType";
 import moment from "moment";
-import "../../styles/opensigndrive.css";
+import "../../styles/lncsigndrive.css";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { setIsShowModal } from "../../redux/reducers/widgetSlice";
@@ -206,10 +206,10 @@ function Placeholder(props) {
 
   const handleOnClickPlaceholder = async () => {
     props?.setIsReqSignTourDisabled && props?.setIsReqSignTourDisabled(true);
-    //'props.isOpenSignPad' variable is used to check flow to open signature pad for finish document
+    //'props.isLncSignPad' variable is used to check flow to open signature pad for finish document
     //request sign, signyourself, selfsign,public-sign, kiosk mode
     if (
-      props.isOpenSignPad &&
+      props.isLncSignPad &&
       !props.isDragging &&
       !props.pos.options?.isReadOnly &&
       props?.data?.Role !== "prefill" &&
@@ -803,7 +803,7 @@ function Placeholder(props) {
           bounds="parent"
           className="signYourselfBlock"
           style={{
-            border: "1.5px solid #007bff",
+            border: "1.5px solid #968600",
             borderRadius: "2px",
             cursor: getCursor(),
             zIndex:
