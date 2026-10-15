@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const BASE = 'http://localhost:30001/test';
-const APP = { 'X-Parse-Application-Id': 'test', 'Content-Type': 'application/json' };
+const APP = { 'X-Parse-Application-Id': 'test', 'X-Parse-Javascript-Key': 'test', 'Content-Type': 'application/json' };
 const MASTER = { ...APP, 'X-Parse-Master-Key': 'test' };
 const post = (path, body, headers = APP) =>
   axios.post(BASE + path, body, { headers, validateStatus: () => true });
