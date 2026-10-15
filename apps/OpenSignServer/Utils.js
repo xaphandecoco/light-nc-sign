@@ -818,3 +818,14 @@ export const handleValidImage = async Placeholder => {
   }
   return updatedPlaceholders;
 };
+
+// Mail attachments may only be fetched from this server's own files (stops fetching arbitrary URLs).
+export const isOwnFileUrl = url => {
+  try {
+    const u = new URL(url);
+    const own = new URL(process.env.SERVER_URL || cloudServerUrl).hostname;
+    return u.pathname.includes('/files/') && [own, 'localhost', '127.0.0.1'].includes(u.hostname);
+  } catch (e) {
+    return false;
+  }
+};

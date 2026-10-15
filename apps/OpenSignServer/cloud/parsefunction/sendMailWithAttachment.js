@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import https from 'https';
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import { appName, smtpenable, smtpsecure, updateMailCount } from '../../Utils.js';
+import { appName, smtpenable, smtpsecure, updateMailCount, isOwnFileUrl } from '../../Utils.js';
 import { createTransport } from 'nodemailer';
 import axios from 'axios';
 
@@ -57,6 +57,7 @@ async function sendMailProvider(params) {
         let Pdf = fs.createWriteStream(testPdf);
         const writeToLocalDisk = () => {
           return new Promise((resolve, reject) => {
+            if (!isOwnFileUrl(params.url)) return resolve('error');
             const isSecure =
               new URL(params.url)?.protocol === 'https:' &&
               new URL(params.url)?.hostname !== 'localhost';
@@ -71,14 +72,13 @@ async function sendMailProvider(params) {
                   resolve('error');
                 });
             } else {
-              const httpsAgent = new https.Agent({ rejectUnauthorized: false }); // Disable SSL validation
               const localUrl = params.url;
               const newlocalUrl = localUrl.replace(
                 'https://localhost:3001/api',
                 'http://localhost:8080'
               );
               axios
-                .get(newlocalUrl, { responseType: 'stream', httpsAgent: httpsAgent })
+                .get(newlocalUrl, { responseType: 'stream' })
                 .then(response => {
                   response.data.pipe(Pdf);
                   Pdf.on('finish', () => resolve('success'));

@@ -2,6 +2,7 @@ import formData from 'form-data';
 import Mailgun from 'mailgun.js';
 import { appName, smtpenable, smtpsecure, updateMailCount } from '../../Utils.js';
 import { createTransport } from 'nodemailer';
+import { allow } from './otpStore.js';
 async function sendMailProvider(req) {
   const app = appName;
   const extUserId = req.params?.extUserId || '';
@@ -88,6 +89,10 @@ async function sendMailProvider(req) {
 }
 
 async function sendmailv3(req) {
+  // Open to signers without a session header, so cap it per address instead: 100 mails an hour.
+  if (!allow(`mail-ip:${req.headers?.['x-real-ip'] || req.ip || 'unknown'}`, 100, 60 * 60 * 1000)) {
+    throw new Parse.Error(Parse.Error.CONNECTION_FAILED, 'Too many requests. Try again later.');
+  }
   const nonCustomMail = await sendMailProvider(req);
   return nonCustomMail;
 }

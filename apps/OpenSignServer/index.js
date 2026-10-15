@@ -111,7 +111,7 @@ export const config = {
   maxLimit: 500,
   maxUploadSize: '100mb',
   masterKey: process.env.MASTER_KEY, //Add your master key here. Keep it secret!
-  masterKeyIps: ['0.0.0.0/0', '::/0'], // '::1'
+  masterKeyIps: ['127.0.0.1', '::1', '::ffff:127.0.0.1', '172.16.0.0/12'], // loopback + docker compose subnet
   serverURL: cloudServerUrl, // Don't forget to change to https if needed
   verifyUserEmails: false,
   publicServerURL: process.env.SERVER_URL || cloudServerUrl,
